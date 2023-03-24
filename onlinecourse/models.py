@@ -114,7 +114,35 @@ class Enrollment(models.Model):
     #        return True
     #    else:
     #        return False
+class Question(models.Model):
+    course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    text = models.TextField()
+    grade = models.DecimalField(max_digits=5, decimal_places=2)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(default=now, editable=False)
 
+    def __str__(self):
+        return self.text[:50]
+
+    def get_absolute_url(self):
+        return reverse('question_detail', args=[str(self.uuid)])
+        
+    def is_get_score(self, selected_ids):
+        all_answers = self.choice_set.filter(is_correct=True).count()
+        selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count()
+        if all_answers == selected_correct:
+            return self.grade
+        else:
+            return 0
+
+
+class Choice(models.Model):
+    question = models.ForeignKey('Question', on_delete=models.CASCADE)
+    text = models.TextField()
+    is_correct = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.text[:50]
 
 #  <HINT> Create a Choice Model with:
     # Used to persist choice content for a question
@@ -128,7 +156,7 @@ class Enrollment(models.Model):
 # One enrollment could have multiple submission
 # One submission could have multiple choices
 # One choice could belong to multiple submissions
-#class Submission(models.Model):
-#    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
-#    choices = models.ManyToManyField(Choice)
+class Submission(models.Model):
+    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
+    choices = models.ManyToManyField(Choice)
 #    Other fields and methods you would like to design
