@@ -14,8 +14,9 @@ urlpatterns = [
     path('logout/', views.logout_request, name='logout'),
     # ex: /onlinecourse/5/
     path('<int:pk>/', views.CourseDetailView.as_view(), name='course_details'),
-    # ex: /enroll/5/
     path('<int:course_id>/enroll/', views.enroll, name='enroll'),
+    # ex: /enroll/5/
+
 
     # <HINT> Create a route for submit view
 

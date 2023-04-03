@@ -8,6 +8,9 @@ from django.urls import reverse
 from django.views import generic
 from django.contrib.auth import login, logout, authenticate
 import logging
+from .models import Question, Choice
+
+
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 # Create your views here.
@@ -82,13 +85,20 @@ class CourseListView(generic.ListView):
             if user.is_authenticated:
                 course.is_enrolled = check_if_enrolled(user, course)
         return courses
-
-
 class CourseDetailView(generic.DetailView):
     model = Course
     template_name = 'onlinecourse/course_detail_bootstrap.html'
 
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        questions = Question.objects.filter(course=self.object)
+        choices = Choice.objects.filter(question__in=questions)
+        context['questions'] = questions
+        context['choices'] = choices
+        return context
+    
+     
+     
 def enroll(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     user = request.user
@@ -131,6 +141,8 @@ def enroll(request, course_id):
         # For each selected choice, check if it is a correct answer or not
         # Calculate the total score
 #def show_exam_result(request, course_id, submission_id):
+
+
 
 
 
