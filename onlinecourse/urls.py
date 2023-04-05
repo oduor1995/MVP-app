@@ -15,6 +15,10 @@ urlpatterns = [
     # ex: /onlinecourse/5/
     path('<int:pk>/', views.CourseDetailView.as_view(), name='course_details'),
     path('<int:course_id>/enroll/', views.enroll, name='enroll'),
+    path('<int:course_id>/submit/', views.submit, name='submit'),
+    path('exam_result/<int:course_id>/<int:submission_id>/', views.show_exam_result, name='show_exam_result')
+
+
     # ex: /enroll/5/
 
 

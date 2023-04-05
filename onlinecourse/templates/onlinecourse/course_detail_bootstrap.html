@@ -20,7 +20,8 @@
 
         <!-- Add the exam questions as a collapsible panel -->
         <div class="collapse" id="examCollapse">
-            <form method="post">
+            <form method="post" action="{% url 'onlinecourse:submit' course_id=1 %}">
+
                 {% csrf_token %}
                 <input type="hidden" name="course_id" value="{{ course.id }}">
                 <ul>
@@ -46,6 +47,7 @@
     {% endif %}
 </body>
 </html>
+
 
 
 

@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.views import generic
 from django.contrib.auth import login, logout, authenticate
 import logging
-from .models import Question, Choice
+from .models import Course, Enrollment, Question, Choice, Submission
 
 
 # Get an instance of a logger
@@ -141,6 +141,70 @@ def enroll(request, course_id):
         # For each selected choice, check if it is a correct answer or not
         # Calculate the total score
 #def show_exam_result(request, course_id, submission_id):
+
+
+def show_exam_result(request, course_id, submission_id):
+    # Get the course object and submission object based on their ids
+    course = Course.objects.get(pk=course_id)
+    submission = Submission.objects.get(pk=submission_id)
+    
+    # Get the selected choice ids from the submission record
+    selected_choice_ids = submission.choices.values_list('id', flat=True)
+    
+    # For each selected choice, check if it is a correct answer or not
+    total_score = 0
+    question_results = []
+    for choice_id in selected_choice_ids:
+        choice = Choice.objects.get(pk=choice_id)
+        if choice.is_correct:
+            total_score += choice.question.grade
+            question_results.append((choice.question, choice, True))
+        else:
+            question_results.append((choice.question, choice, False))
+    
+    # Calculate the total score by adding up the grades for all questions in the course
+    max_score = sum(question.grade for question in course.questions.all())
+    percent_score = total_score / max_score * 100
+    
+    # Add the course, selected_ids, and grade to context for rendering HTML page
+    context = {
+        'course': course,
+        'selected_choice_ids': selected_choice_ids,
+        'total_score': total_score,
+        'max_score': max_score,
+        'percent_score': percent_score,
+        'question_results': question_results,
+    }
+    
+    # Render the exam result HTML page with the context
+    return render(request, 'exam_result.html', context)
+
+
+
+def submit(request, course_id):
+    # Get the current user and course object
+    user = request.user
+    course = Course.objects.get(pk=course_id)
+    
+    # Get the enrollment object associated with the user and course
+    enrollment = Enrollment.objects.get(user=user, course=course)
+    
+    # Create a new submission object referring to the enrollment
+    submission = Submission.objects.create(enrollment=enrollment)
+    
+    # Collect the selected choices from the HTTP request object
+    selected_choices = [int(choice_id) for choice_id in request.POST.values()]
+    
+    # Add each selected choice object to the submission object
+    for choice_id in selected_choices:
+        choice = Choice.objects.get(pk=choice_id)
+        submission.choices.add(choice)
+    
+    # Redirect to a show_exam_result view with the submission id
+    return redirect('show_exam_result', submission_id=submission.pk)
+
+
+
 
 
 
