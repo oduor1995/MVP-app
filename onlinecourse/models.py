@@ -10,6 +10,8 @@ from django.conf import settings
 import uuid
 
 
+
+
 # Instructor model
 class Instructor(models.Model):
     user = models.ForeignKey(
@@ -54,6 +56,7 @@ class Learner(models.Model):
 
 # Course model
 class Course(models.Model):
+    questions = models.ManyToManyField('Question', related_name='courses')
     name = models.CharField(null=False, max_length=30, default='online course')
     image = models.ImageField(upload_to='course_images/')
     description = models.CharField(max_length=1000)
@@ -64,8 +67,7 @@ class Course(models.Model):
     is_enrolled = False
 
     def __str__(self):
-        return "Name: " + self.name + "," + \
-               "Description: " + self.description
+        return "Name: " + self.name + "," + "Description: " + self.description
 
 
 # Lesson model

@@ -164,7 +164,9 @@ def show_exam_result(request, course_id, submission_id):
     
     # Calculate the total score by adding up the grades for all questions in the course
     max_score = sum(question.grade for question in course.questions.all())
-    percent_score = total_score / max_score * 100
+    
+    # Check if max_score is not zero before calculating percent_score
+    percent_score = total_score / max_score * 100 if max_score != 0 else 0
     
     # Add the course, selected_ids, and grade to context for rendering HTML page
     context = {
@@ -177,7 +179,10 @@ def show_exam_result(request, course_id, submission_id):
     }
     
     # Render the exam result HTML page with the context
-    return render(request, 'exam_result.html', context)
+    return render(request, 'exam_result_bootstrap.html', context)
+
+
+
 
 
 
@@ -193,15 +198,20 @@ def submit(request, course_id):
     submission = Submission.objects.create(enrollment=enrollment)
     
     # Collect the selected choices from the HTTP request object
-    selected_choices = [int(choice_id) for choice_id in request.POST.values()]
+    selected_choices = []
+    for choice_id in request.POST.values():
+        if choice_id.isdigit():
+            selected_choices.append(int(choice_id))
     
     # Add each selected choice object to the submission object
     for choice_id in selected_choices:
         choice = Choice.objects.get(pk=choice_id)
         submission.choices.add(choice)
     
-    # Redirect to a show_exam_result view with the submission id
-    return redirect('show_exam_result', submission_id=submission.pk)
+    # Redirect to the 'show_exam_result' view with the submission id and course id using the app namespace
+    return redirect('onlinecourse:show_exam_result', course_id=course_id, submission_id=submission.pk)
+
+
 
 
 
