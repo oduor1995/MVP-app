@@ -176,10 +176,13 @@ def show_exam_result(request, course_id, submission_id):
         'max_score': max_score,
         'percent_score': percent_score,
         'question_results': question_results,
+        'course_id': course_id, # Include course_id in the context
+        'submission_id': submission_id, # Include submission_id in the context
     }
     
     # Render the exam result HTML page with the context
-    return render(request, 'exam_result_bootstrap.html', context)
+    return render(request, 'onlinecourse/exam_result_bootstrap.html', context) # Update the template path to include the app name
+
 
 
 

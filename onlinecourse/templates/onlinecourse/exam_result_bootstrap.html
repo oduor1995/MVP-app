@@ -22,7 +22,8 @@
         <!-- Display failed info -->
         <p>Unfortunately, you have failed the exam. Please review your answers and try again.</p>
     </div>
-    <form action="{% url 'onlinecourse:show_exam_result' course_id submission_id %}" method="post">
+    <form action="{% url 'onlinecourse:show_exam_result' course_id=course_id submission_id=submission_id %}" method="post">
+
         {% csrf_token %}
         <button class="btn btn-link text-danger" type="submit">Re-test</button>
     </form>
