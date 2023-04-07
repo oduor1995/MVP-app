@@ -1,63 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    {% load static %}
+    <title>Exam Result</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .correct-answer {
+            color: green;
+        }
+        .failed-message {
+            color: violet;
+        }
+        .passed-message {
+            color: green;
+        }
+    </style>
 </head>
 <body>
+    <div class="container mt-5">
+        {% if percent_score >= course.passing_percentage %}
+            <div class="alert alert-success">
+                <p class="mb-0">Congratulations! You have passed the exam with a grade of {{ grade }} and a total score of {{ total_score }} out of {{ max_score }}.</p>
+            </div>
+        {% else %}
+            <div class="alert alert-danger">
+                <p class="mb-0">Unfortunately, you have failed the exam with a grade of {{ grade }} and a total score of {{ total_score }} out of {{ max_score }}.</p>
+                <p>Please review your incorrect choices and retake the exam.</p>
+                <p><a href="{% url 'onlinecourse:show_exam_result' course_id=course_id submission_id=submission_id %}" class="text-danger">Re-test</a></p>
+            </div>
+        {% endif %}
 
-<nav class="navbar navbar-light bg-light">
-    <!-- Navbar content -->
-</nav>
+        <h1 class="mt-5">Exam Result</h1>
 
-<div class="container-fluid">
-    {% if percent_score > 80 %}
-    <div class="alert alert-success">
-       <!-- Display passed info -->
-       <p>Congratulations! You have passed the exam.</p>
+        <h2 class="mt-4">Question Results:</h2>
+        <ul class="list-group mt-3">
+        {% for question_result in question_results %}
+            <li class="list-group-item">
+                <p class="mb-0">Question: {{ question_result.0.text }}</p>
+                <p class="mb-0">Selected Choice: {{ question_result.1.text }}</p>
+                <p class="{% if question_result.2 %}correct-answer{% endif %} mb-0">Is Correct: {{ question_result.2 }}</p>
+                {% if not question_result.2 %}
+                    <p class="mb-0">Correct Choice: {{ question_result.0.correct_choice.text }}</p>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
     </div>
-    {% else %}
-    <div class="alert alert-danger">
-        <!-- Display failed info -->
-        <p>Unfortunately, you have failed the exam. Please review your answers and try again.</p>
-    </div>
-    <form action="{% url 'onlinecourse:show_exam_result' course_id=course_id submission_id=submission_id %}" method="post">
-
-        {% csrf_token %}
-        <button class="btn btn-link text-danger" type="submit">Re-test</button>
-    </form>
-    {% endif %}
-    <div class="card-columns-vertical mt-1">
-        <h5 class="">Exam results</h5>
-        <!-- Display exam results -->
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Question</th>
-                    <th>Your Answer</th>
-                    <th>Result</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for question, choice, is_correct in question_results %}
-                <tr>
-                    <td>{{ question.question_text }}</td>
-                    <td>{{ choice.choice_text }}</td>
-                    <td>
-                        {% if is_correct %}
-                        <span class="text-success">Correct</span>
-                        {% else %}
-                        <span class="text-danger">Incorrect</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
